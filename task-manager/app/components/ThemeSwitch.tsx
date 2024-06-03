@@ -3,42 +3,39 @@
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
-import Image from 'next/image';
 
 export default function ThemeSwitch() {
   const [mounted, setMounted] = useState(false);
   const { setTheme, resolvedTheme } = useTheme();
+  const [rotation, setRotation] = useState(resolvedTheme === 'dark' ? 180 : 0);
 
   useEffect(() => setMounted(true), []);
 
-  if (!mounted)
-    return (
-      <Image
-        src='data:image/svg+xml;base64,PHN2ZyBzdHJva2U9IiNGRkZGRkYiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMCIgdmlld0JveD0iMCAwIDI0IDI0IiBoZWlnaHQ9IjIwMHB4IiB3aWR0aD0iMjAwcHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB4PSIyIiB5PSIyIiBmaWxsPSJub25lIiBzdHJva2Utd2lkdGg9IjIiIHJ4PSIyIj48L3JlY3Q+PC9zdmc+Cg=='
-        width={36}
-        height={36}
-        sizes='36x36'
-        alt='Loading Light/Dark Toggle'
-        priority={false}
-        title='Loading Light/Dark Toggle'
-      />
-    );
+  const toggleTheme = () => {
+    const newTheme = resolvedTheme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    setRotation(rotation === 0 ? 180 : 0); // Toggle rotation
+  };
 
-  if (resolvedTheme === 'dark') {
-    return (
-      <FiSun
-        className='text-white m-5 w-12 h-12 border-2 rounded-full p-2'
-        onClick={() => setTheme('light')}
-      />
-    );
-  }
+  if (!mounted) return null;
 
-  if (resolvedTheme === 'light') {
-    return (
-      <FiMoon
-        className='text-black m-5 w-12 h-12 border-2 border-black rounded-full p-2'
-        onClick={() => setTheme('dark')}
-      />
-    );
-  }
+  return (
+    <div
+      className='m-5 w-14 h-14 rounded-full p-2 relative cursor-pointer flex items-center justify-center'
+      onClick={toggleTheme}
+      style={{
+        transition: 'transform 0.5s',
+        transform: `rotate(${rotation}deg)`,
+        borderWidth: '2px',
+        borderStyle: 'solid',
+        borderColor: resolvedTheme === 'dark' ? 'white' : 'black',
+      }}
+    >
+      {resolvedTheme === 'dark' ? (
+        <FiSun className='text-white w-8 h-8' />
+      ) : (
+        <FiMoon className='text-black w-8 h-8' />
+      )}
+    </div>
+  );
 }
