@@ -5,11 +5,7 @@ import Link from 'next/link';
 import Calendar from '../components/Calendar';
 
 const Dashboard = () => {
-  return (
-    <div>
-      <Calendar />
-    </div>
-  );
+  return <div></div>;
 };
 
 export default Dashboard;

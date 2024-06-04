@@ -1,5 +1,7 @@
+'use client';
+
+import { usePathname } from 'next/navigation';
 import type { Metadata } from 'next';
-import { useState } from 'react';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import NavBar from './components/Navbar';
@@ -14,13 +16,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+
   return (
     <html suppressHydrationWarning>
       <body className={inter.className}>
         <Providers>
           <ThemeSwitch />
           <NavBar />
-          <Calendar />
+          {(pathname === '/' || pathname === '/dashboard') && <Calendar />}
           <main>{children}</main>
         </Providers>
       </body>
