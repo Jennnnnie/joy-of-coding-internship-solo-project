@@ -16,16 +16,27 @@ interface Event {
   start: Date | string;
   allDay: boolean;
   id: number;
+  color?: string; // Add the color property as optional
 }
 
 export default function Calendar() {
-  const [events, setEvents] = useState([
-    { title: 'event 1', id: '1' },
-    { title: 'event 2', id: '2' },
-    { title: 'event 3', id: '3' },
-    { title: 'event 4', id: '4' },
-    { title: 'event 5', id: '5' },
-  ]);
+  const colorOptions = [
+    { name: 'Red', value: '#e5989b' },
+    { name: 'Orange', value: '#ffbf69' },
+    { name: 'Yellow', value: '#ffe169' },
+    { name: 'Green', value: '#95d5b2' },
+    { name: 'Blue', value: '#ade8f4' },
+    { name: 'Purple', value: '#ddbdfc' },
+  ];
+
+  // State to store text field values
+  const [textFields, setTextFields] = useState(
+    colorOptions.map((option) => ({
+      color: option.value,
+      title: '',
+    }))
+  );
+
   const [allEvents, setAllEvents] = useState<Event[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -35,6 +46,7 @@ export default function Calendar() {
     start: '',
     allDay: false,
     id: 0,
+    color: colorOptions[0].value,
   });
 
   useEffect(() => {
@@ -51,6 +63,15 @@ export default function Calendar() {
       });
     }
   }, []);
+
+  // Function to handle text field change
+  const handleTextFieldChange = (index, value) => {
+    setTextFields((prevTextFields) => {
+      const updatedTextFields = [...prevTextFields];
+      updatedTextFields[index].title = value;
+      return updatedTextFields;
+    });
+  };
 
   function handleDateClick(arg: { date: Date; allDay: boolean }) {
     setNewEvent({
@@ -98,13 +119,6 @@ export default function Calendar() {
     setIdToDelete(null);
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setNewEvent({
-      ...newEvent,
-      title: e.target.value,
-    });
-  };
-
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setAllEvents([...allEvents, newEvent]);
@@ -116,6 +130,16 @@ export default function Calendar() {
       id: 0,
     });
   }
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ): void => {
+    const { name, value } = e.target;
+    setNewEvent((prevEvent) => ({
+      ...prevEvent,
+      [name]: value,
+    }));
+  };
 
   return (
     <>
@@ -144,14 +168,31 @@ export default function Calendar() {
             id='draggable-el'
             className='ml-8 w-full border-2 p-2 rounded-md mt-16 lg:h-1/2 text-textLight dark:text-textDark'
           >
-            <h1 className='font-bold text-lg text-center '>Drag Event</h1>
-            {events.map((event) => (
-              <div
-                className='fc-event border-2 p-1 m-2 w-full rounded-md ml-auto text-center'
-                title={event.title}
-                key={event.id}
-              >
-                {event.title}
+            <h1 className='font-bold text-lg text-center '>Categories</h1>
+            {colorOptions.map((option, index) => (
+              <div className='flex items-center' key={option.value}>
+                <div
+                  className={`w-6 h-6 rounded-full m-2 border-none cursor-pointer ${
+                    newEvent.color === option.value
+                      ? 'ring-2 ring-offset-2 ring-violet-600'
+                      : ''
+                  }`}
+                  style={{ backgroundColor: option.value }}
+                  onClick={() =>
+                    setNewEvent((prevEvent) => ({
+                      ...prevEvent,
+                      color: option.value,
+                    }))
+                  }
+                ></div>
+                <input
+                  type='text'
+                  className='ml-2 rounded-md border-0 py-1 pl-1 text-textLight dark:text-textDark shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-violet-600 sm:text-sm sm:leading-6'
+                  placeholder='Category'
+                  value={textFields[index].title}
+                  onChange={(e) => handleTextFieldChange(index, e.target.value)}
+                  style={{ width: '60px' }} // Adjusted width to make it smaller
+                />
               </div>
             ))}
           </div>
@@ -285,16 +326,38 @@ export default function Calendar() {
                             <input
                               type='text'
                               name='title'
-                              className='block w-full rounded-md border-0 py-1.5 text-textLight dark:text-textDark
-                            shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 
-                            focus:ring-2 
-                            focus:ring-inset focus:ring-violet-600 
-                            sm:text-sm sm:leading-6'
+                              className='block w-full rounded-md border-0 py-1.5 pl-2 text-textLight dark:text-textDark
+  shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 
+  focus:ring-2 
+  focus:ring-inset focus:ring-violet-600 
+  sm:text-sm sm:leading-6'
                               value={newEvent.title}
                               onChange={(e) => handleChange(e)}
                               placeholder='Title'
                             />
                           </div>
+
+                          {/* radio color buttons */}
+                          <div className='mt-2'>
+                            {colorOptions.map((option) => (
+                              <button
+                                key={option.value}
+                                className={`w-6 h-6 rounded-full m-2 border-none focus:outline-none cursor-pointer ${
+                                  newEvent.color === option.value
+                                    ? 'ring-2 ring-offset-2 ring-violet-600'
+                                    : ''
+                                }`}
+                                style={{ backgroundColor: option.value }}
+                                onClick={() =>
+                                  setNewEvent((prevEvent) => ({
+                                    ...prevEvent,
+                                    color: option.value,
+                                  }))
+                                }
+                              ></button>
+                            ))}
+                          </div>
+
                           <div className='mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3'>
                             <button
                               type='submit'
