@@ -65,7 +65,7 @@ export default function Calendar() {
   }, []);
 
   // Function to handle text field change
-  const handleTextFieldChange = (index, value) => {
+  const handleTextFieldChange = (index: number, value: string) => {
     setTextFields((prevTextFields) => {
       const updatedTextFields = [...prevTextFields];
       updatedTextFields[index].title = value;
